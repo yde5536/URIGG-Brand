@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>URIGG Brand Kit</title>
+  <meta name="description" content="URIGG 유니버스의 로고·색·글꼴·리퀴드 글라스·부품·말투 기준.">
+  <link rel="icon" type="image/png" sizes="32x32" href="logo/favicon-32.png">
+  <link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tokens/urigg.css">
+  <link rel="stylesheet" href="components/urigg-glass.css">
+  <style>
+    /* 이 페이지만의 배치. 색·글꼴·유리는 모두 위의 토큰과 부품에서 온다 */
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 72px var(--u-gutter) 96px; display: grid; gap: 56px; }
+    h1, h2, h3, p, ul, ol, dl, figure { margin: 0; }
+    ul, ol { padding: 0; list-style: none; }
+    a { color: inherit; }
+    code, .mono { font-family: var(--u-mono); font-size: 0.875em; }
+    .hero { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+    .hero h1 { font-size: var(--u-step-display); font-weight: 600; letter-spacing: var(--u-tracking-display); line-height: 0.95; }
+    .hero p { margin-top: 10px; color: var(--u-muted); font-size: var(--u-step-lead); }
+    .hero .mono { color: var(--u-muted); }
+    section { display: grid; gap: 18px; }
+    section > h2 { font-size: var(--u-step-head); font-weight: 600; letter-spacing: var(--u-tracking-head); line-height: 1.05; }
+    section > p { color: var(--u-muted); max-width: 64ch; }
+    .grid { display: grid; gap: var(--u-gap); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .small { font-size: var(--u-step-small); color: var(--u-muted); }
+    .rules li { position: relative; padding-left: 1.2em; font-size: var(--u-step-small); line-height: 1.6; }
+    .rules li::before { content: '·'; position: absolute; left: 0.3em; color: var(--u-muted); }
+    .rules .no::before { content: '×'; color: var(--u-accent-text); left: 0.2em; }
+
+    /* 로고 */
+    .logos { display: flex; align-items: end; gap: 32px; flex-wrap: wrap; }
+    .logos figure { display: grid; justify-items: center; gap: 10px; }
+    .logos img { border-radius: 50%; }
+    .wordmark { font-size: 3.5rem; font-weight: 600; letter-spacing: var(--u-tracking-display); line-height: 1; }
+
+    /* 색 */
+    .swatches { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+    .swatch { display: grid; gap: 8px; padding: 10px; border-radius: 18px; background: rgb(255 255 255 / 0.04); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08); }
+    .swatch i { height: 64px; border-radius: 12px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12); }
+    .swatch b { font-size: var(--u-step-small); font-weight: 600; }
+    .swatch span { font-size: 0.75rem; color: var(--u-muted); line-height: 1.4; }
+    .levels { display: flex; gap: 4px; }
+    .levels i { width: 22px; height: 22px; border-radius: 5px; }
+
+    /* 글꼴 */
+    .type dt { font-size: 0.75rem; color: var(--u-muted); font-family: var(--u-mono); }
+    .type dd { margin: 0 0 14px; }
+
+    /* 부품 */
+    .keys { display: flex; flex-wrap: wrap; gap: 14px 18px; }
+    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .motion li { display: grid; grid-template-columns: 9em 1fr; gap: 12px; font-size: var(--u-step-small); padding: 6px 0; border-bottom: 1px solid rgb(255 255 255 / 0.06); }
+    .motion li span:first-child { color: var(--u-muted); }
+    pre { margin: 0; padding: 14px 16px; border-radius: 14px; background: rgb(0 0 0 / 0.35); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08); overflow-x: auto; font-family: var(--u-mono); font-size: 0.8125rem; line-height: 1.6; white-space: pre; }
+    .names td, .names th { text-align: left; padding: 8px 12px 8px 0; font-size: var(--u-step-small); vertical-align: top; border-bottom: 1px solid rgb(255 255 255 / 0.06); }
+    .names th { color: var(--u-muted); font-weight: 500; }
+    .names { border-collapse: collapse; width: 100%; }
+    footer { color: var(--u-muted); font-size: var(--u-step-small); }
+    @media (max-width: 640px) { .wrap { padding-top: 48px; gap: 44px; } .wordmark { font-size: 2.5rem; } }
+  </style>
+</head>
+<body class="u-page">
+  <div class="u-aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+  <main class="wrap">
+
+    <header class="hero">
+      <img class="u-emblem" src="logo/emblem-320.webp" alt="URIGG 로고" width="104" height="104">
+      <div>
+        <h1>URIGG Brand Kit</h1>
+        <p>Security, logged. <span class="mono">· urigg.pages.dev</span></p>
+      </div>
+    </header>
+
+    <section aria-labelledby="s-logo">
+      <h2 id="s-logo">로고</h2>
+      <p>둥근 엠블럼이 기본입니다. 작은 자리에는 마크, 글자로 쓸 때는 URIGG 글자 로고를 씁니다.</p>
+      <div class="u-tile">
+        <div class="logos">
+          <figure><img class="u-emblem" src="logo/emblem-320.webp" alt="" width="104" height="104"><figcaption class="small">엠블럼 · 빛무리</figcaption></figure>
+          <figure><img src="logo/mark-64.webp" alt="" width="28" height="28"><figcaption class="small">마크 28px</figcaption></figure>
+          <figure><img src="logo/favicon-32.png" alt="" width="32" height="32"><figcaption class="small">파비콘</figcaption></figure>
+          <figure><span class="wordmark">URIGG</span><figcaption class="small">글자 로고 · Switzer 600</figcaption></figure>
+        </div>
+      </div>
+      <ul class="rules">
+        <li>엠블럼 뒤에는 은은한 푸른 빛무리(<code>--u-halo</code>)만 둡니다.</li>
+        <li class="no">테두리 링, 둥실 떠오르는 움직임, 기울이기·늘이기는 하지 않습니다.</li>
+        <li>파일: <code>logo/emblem-320.webp</code>(화면용), <code>logo/emblem-1400.png</code>(크게·공유 이미지), <code>logo/favicon-*.png</code></li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="s-color">
+      <h2 id="s-color">색</h2>
+      <p>검정 바탕에 거의 흰 글자. 크림슨은 주요 버튼과 경고 글자에만, 한 화면에 조금만 씁니다.</p>
+      <div class="swatches">
+        <div class="swatch"><i style="background: var(--u-bg)"></i><b>bg</b><span>#0a0a0a · 페이지 바탕</span></div>
+        <div class="swatch"><i style="background: var(--u-surface)"></i><b>surface</b><span>#151515 · 유리를 못 쓸 때의 면</span></div>
+        <div class="swatch"><i style="background: var(--u-ink)"></i><b>ink</b><span>#efefef · 본문 글자</span></div>
+        <div class="swatch"><i style="background: var(--u-muted)"></i><b>muted</b><span>#a3a3a3 · 라벨·보조 글자</span></div>
+        <div class="swatch"><i style="background: var(--u-accent)"></i><b>accent</b><span>#b11226 · 주요 버튼만</span></div>
+        <div class="swatch"><i style="background: var(--u-accent-text)"></i><b>accent-text</b><span>#ef4257 · 검정 위 경고 글자</span></div>
+        <div class="swatch"><i style="background: linear-gradient(120deg, var(--u-aurora-1), var(--u-aurora-2) 60%, var(--u-aurora-3))"></i><b>aurora</b><span>네이비 · 푸른 회색 · 크림슨 조금, 아주 느리게</span></div>
+        <div class="swatch"><i style="background: var(--u-bg); display: grid; place-items: center"><span class="levels"><i style="background: var(--u-level-0)"></i><i style="background: var(--u-level-1)"></i><i style="background: var(--u-level-2)"></i><i style="background: var(--u-level-3)"></i></span></i><b>levels</b><span>활동량(잔디), 한 가지 푸른 색의 밝기로만</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="s-type">
+      <h2 id="s-type">글꼴</h2>
+      <p>영문은 Switzer, 한글은 Pretendard. 고정폭 JetBrains Mono는 시간·주소·IP 같은 작은 라벨에만 씁니다.</p>
+      <div class="u-tile">
+        <dl class="type">
+          <dt>display · 600 · -0.045em</dt><dd style="font-size: var(--u-step-display); font-weight: 600; letter-spacing: var(--u-tracking-display); line-height: 1">Security.log HUB</dd>
+          <dt>head · 600 · -0.03em</dt><dd style="font-size: var(--u-step-head); font-weight: 600; letter-spacing: var(--u-tracking-head)">오늘의 보안 키워드</dd>
+          <dt>lead · 600</dt><dd style="font-size: var(--u-step-lead); font-weight: 600">Security News · KEV · Vuln</dd>
+          <dt>body · 400</dt><dd>로그에 문자열 하나가 찍혔을 뿐인데 서버가 외부 코드를 받아 실행했다.</dd>
+          <dt>small · muted</dt><dd class="small">KISA · 데일리시큐 · THN · 3일 전</dd>
+          <dt>mono · 라벨 전용</dt><dd class="mono" style="color: var(--u-muted)">urigg.pages.dev · 14:09:32 · 203.0.113.7</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section aria-labelledby="s-glass">
+      <h2 id="s-glass">리퀴드 글라스</h2>
+      <p>칸은 꽤 투명하지만 완전히 맑지는 않습니다. 뒤 오로라가 흐리게 비치고, 테두리는 얇은 빛 한 줄, 위쪽에만 은은한 반사광이 있습니다.</p>
+      <div class="grid">
+        <article class="u-tile">
+          <div class="u-tile__head"><h3 class="u-tile__title">유리 칸</h3><a class="u-tile__more" href="#s-glass">더 보기 ↗</a></div>
+          <ul class="motion">
+            <li><span>바탕</span><code>rgb(18 20 26 / 0.16)</code></li>
+            <li><span>흐림</span><code>blur(10px) saturate(170%)</code></li>
+            <li><span>모서리</span><code>26px</code></li>
+            <li><span>안쪽 여백</span><code>18px 22px</code></li>
+          </ul>
+        </article>
+        <article class="u-tile">
+          <div class="u-tile__head">
+            <div class="u-tabs" role="tablist" aria-label="탭 예시">
+              <span class="u-tabs__pill" aria-hidden="true"></span>
+              <button type="button" role="tab" aria-selected="true">알림</button>
+              <button type="button" role="tab" aria-selected="false">Log</button>
+              <button type="button" role="tab" aria-selected="false">CTF</button>
+            </div>
+          </div>
+          <p class="small">칸 제목을 탭으로 쓸 때: 고른 탭 뒤로 유리 알약이 미끄러집니다 (420ms, 살짝 튀는 곡선). 눌러 보세요.</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="s-parts">
+      <h2 id="s-parts">부품</h2>
+      <div class="u-tile">
+        <div class="u-tile__head"><h3 class="u-tile__title">유리 아이콘 · 버튼</h3></div>
+        <div class="keys">
+          <a class="u-key" href="#s-parts"><span class="u-key__glass"><img src="icons/claude.svg" alt=""></span>Claude</a>
+          <a class="u-key" href="#s-parts"><span class="u-key__glass"><img src="icons/github.svg" alt=""></span>GitHub</a>
+          <a class="u-key" href="#s-parts"><span class="u-key__glass"><img src="icons/dreamhack.svg" alt=""></span>드림핵</a>
+          <a class="u-key" href="#s-parts"><span class="u-key__glass"><img src="icons/tistory.svg" alt=""></span>티스토리</a>
+        </div>
+        <div class="row" style="margin-top: 18px">
+          <a class="u-btn" href="#s-parts">Windows 다운로드</a>
+          <button type="button" class="u-btn-ghost">다음 취약점 ›</button>
+          <span class="small">주요 버튼(크림슨)은 한 화면에 하나쯤. 나머지는 유리 알약.</span>
+        </div>
+      </div>
+      <ul class="rules">
+        <li>아이콘은 흰색 단색입니다 (<code>icons/</code>, simple-icons CC0, 드림핵은 공식 로고의 심볼만). 브랜드 원색은 쓰지 않습니다.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="s-motion">
+      <h2 id="s-motion">움직임</h2>
+      <ul class="motion">
+        <li><span>누를 때</span><code>100ms · scale(0.95)</code></li>
+        <li><span>보통 전환</span><code>200ms · cubic-bezier(0.16, 1, 0.3, 1)</code></li>
+        <li><span>버튼 떠오름</span><code>240ms · cubic-bezier(0.34, 1.56, 0.64, 1)</code></li>
+        <li><span>탭 알약</span><code>420ms · cubic-bezier(0.3, 1.4, 0.5, 1)</code></li>
+        <li><span>오로라</span><code>58 · 67 · 74초 주기, 초당 8번만 옮김</code></li>
+        <li><span>애니메이션 줄이기</span>설정이 켜져 있으면 움직임을 모두 끕니다.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="s-voice">
+      <h2 id="s-voice">이름과 말투</h2>
+      <table class="names">
+        <tr><th>URIGG</th><td>유니버스 전체의 이름, 로고 글자</td></tr>
+        <tr><th>Security.log HUB</th><td>바탕화면으로 쓰는 허브 (웹에서는 Security.log Website)</td></tr>
+        <tr><th>security.log</th><td>공부 기록 블로그와 노트 저장소 (소문자)</td></tr>
+        <tr><th>코워크 캘린더</th><td>직접 만든 Windows·아이폰 캘린더 앱</td></tr>
+      </table>
+      <ul class="rules">
+        <li>나를 위한 허브입니다. 자기소개, "안녕하세요, 저는…" 같은 글은 쓰지 않습니다.</li>
+        <li>한국어로 짧고 쉽게. 버튼과 안내는 "~해요"체 (예: "1분마다 재요", "새 알림이 없어요").</li>
+        <li>제목과 칸 이름은 짧은 영어 (News, D-day, Shortcuts), 내용은 한국어.</li>
+        <li class="no">실명이나 학교 이름은 어디에도 넣지 않습니다.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="s-never">
+      <h2 id="s-never">하지 않는 것</h2>
+      <ul class="rules">
+        <li class="no">초록색 해커 테마, ASCII 배너, 테두리를 빙 두르는 빛(rim glow)</li>
+        <li class="no">빨강이 많은 화면, 장식용 사진, 진행률 게이지</li>
+        <li class="no">움직이는 탭 알약에 굴절·프리즘 렌즈 (해 보고 뺐음)</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="s-use">
+      <h2 id="s-use">쓰는 법</h2>
+      <p>다른 프로젝트에서는 이 저장소의 파일을 jsDelivr로 바로 불러옵니다.</p>
+      <pre>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/yde5536/URIGG-Brand@main/tokens/urigg.css"&gt;
+&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/yde5536/URIGG-Brand@main/components/urigg-glass.css"&gt;
+&lt;img src="https://cdn.jsdelivr.net/gh/yde5536/URIGG-Brand@main/logo/emblem-320.webp" alt="URIGG"&gt;</pre>
+      <p class="small">JavaScript·봇에서는 <code>tokens/urigg.json</code>을 씁니다. 값을 바꿀 때는 <code>urigg.css</code>와 <code>urigg.json</code>을 함께 고칩니다.</p>
+    </section>
+
+    <footer>© 2026 URIGG · Security, logged.</footer>
+  </main>
+  <script>
+    // 탭 예시: 고른 탭으로 유리 알약을 옮긴다
+    document.querySelectorAll('.u-tabs').forEach((group) => {
+      const pill = group.querySelector('.u-tabs__pill'), tabs = [...group.querySelectorAll('[role="tab"]')];
+      const move = () => { const on = tabs.find((t) => t.getAttribute('aria-selected') === 'true'); pill.style.width = `${on.offsetWidth}px`; pill.style.transform = `translateX(${on.offsetLeft}px)`; };
+      tabs.forEach((t) => t.addEventListener('click', () => { tabs.forEach((x) => x.setAttribute('aria-selected', x === t)); move(); }));
+      addEventListener('resize', move); document.fonts?.ready.then(move); move();
+    });
+  </script>
+</body>
+</html>

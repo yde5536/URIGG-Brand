@@ -1,0 +1,60 @@
+{
+  "$description": "URIGG 디자인 토큰. tokens/urigg.css와 같은 값이다. 값을 바꿀 때는 두 파일을 함께 고친다.",
+  "color": {
+    "bg": "#0a0a0a",
+    "surface": "#151515",
+    "surface2": "#1f1f1f",
+    "ink": "#efefef",
+    "muted": "#a3a3a3",
+    "accent": "#b11226",
+    "accentPress": "#8f0e1e",
+    "accentInk": "#ffffff",
+    "accentText": "#ef4257",
+    "aurora": ["rgb(58 86 150)", "rgb(34 52 89)", "rgb(140 40 70)"],
+    "halo": "rgb(60 92 170 / 0.5)",
+    "levels": ["rgb(255 255 255 / 0.06)", "rgb(140 170 235 / 0.38)", "rgb(160 190 245 / 0.66)", "rgb(215 228 255 / 0.95)"]
+  },
+  "font": {
+    "sans": ["Switzer", "Pretendard Variable", "Pretendard", "system-ui", "sans-serif"],
+    "mono": ["JetBrains Mono", "Pretendard Variable", "ui-monospace", "monospace"],
+    "weights": { "regular": 400, "medium": 500, "semibold": 600, "bold": 700 },
+    "sources": {
+      "switzer": "https://api.fontshare.com/v2/css?f[]=switzer@400,500,600&display=swap",
+      "pretendard": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css",
+      "jetbrainsMono": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+    }
+  },
+  "size": {
+    "small": "clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem)",
+    "body": "clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem)",
+    "lead": "clamp(1.25rem, 1.05rem + 0.5vw, 1.5rem)",
+    "head": "clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem)",
+    "display": "clamp(3rem, 5.6vw, 5.25rem)",
+    "trackingDisplay": "-0.045em",
+    "trackingHead": "-0.03em"
+  },
+  "space": {
+    "gutter": "clamp(20px, 3.4vw, 48px)",
+    "gap": "16px",
+    "tilePad": "18px 22px",
+    "radiusTile": "26px",
+    "radiusKey": "26%",
+    "radiusPill": "999px"
+  },
+  "glass": {
+    "tint": "rgb(18 20 26 / 0.16)",
+    "blur": "blur(10px) saturate(170%)",
+    "edge": "inset 0 0 0 1px rgb(255 255 255 / 0.14), inset 1.5px 1.5px 0 -0.5px rgb(255 255 255 / 0.55), inset -1px -1px 0 -0.5px rgb(255 255 255 / 0.22)",
+    "lift": "0 18px 40px -12px rgb(0 0 0 / 0.55)",
+    "sheen": "linear-gradient(180deg, rgb(255 255 255 / 0.10), rgb(255 255 255 / 0) 38%)"
+  },
+  "motion": {
+    "easeOut": "cubic-bezier(0.16, 1, 0.3, 1)",
+    "easeSpring": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+    "easePill": "cubic-bezier(0.3, 1.4, 0.5, 1)",
+    "press": "100ms",
+    "quick": "200ms",
+    "move": "420ms",
+    "aurora": { "periods": ["58s", "67s", "74s"], "fps": 8 }
+  }
+}

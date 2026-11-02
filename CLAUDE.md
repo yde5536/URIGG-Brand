@@ -10,4 +10,4 @@ The shared brand kit of the URIGG universe. Read `../URIGG-WebSite/CLAUDE.md` fo
 - Values were taken from the hub site on 2026-11-02 (`site/css/base.css`, `theme-glass.css`, `scenes.css`). If the hub changes a design value, update the kit too, and vice versa.
 - Rejected looks (never use): green hacker theme, ASCII banners, rim glow, red-heavy screens, decorative photos, progress gauges, refraction lens on the moving tab pill.
 - Never put the user's real name or school anywhere.
-- Planned consumers (not built yet): URIGG Tab (Chrome new-tab extension), a Discord bot (daily keyword / CTF / urgent news), the GitHub profile README.
+- Universe discussion (ideas, structure, decisions, recommendations) is in `UNIVERSE.md` — read it to continue that conversation. Planned consumers (not built yet): URIGG Tab (Chrome new-tab extension), a Discord bot, the GitHub profile README.

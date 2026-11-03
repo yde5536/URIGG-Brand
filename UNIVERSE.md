@@ -44,6 +44,8 @@ URIGG를 웹사이트 하나에서 여러 제품이 이어진 "유니버스"로 
 - 뺀 것: Shortcuts, Log(블로그 글), Notes 트리. 탭 묶음은 모두 풀었음.
 - 오로라는 웹보다 밝고 크게, 아주 느리게 흐름.
 
+**진행 상황 (2026-11-03)**: 1단계(main.js 나누기)는 미룸(허브가 시안 기반으로 따로 짜여서 급하지 않음). 2(CORS) 완료. 3 저장소 생성 완료. 4~7 첫 버전 완료(`URIGG-DesktopApp`, 노트북에서 실제 창 실행 확인). 남은 것: 저장소 Secret `TAURI_SIGNING_PRIVATE_KEY` 등록 → `v0.1.0` 태그로 첫 설치 파일 빌드, 터미널 명령어 정하기.
+
 **진행 순서**
 1. 웹사이트 저장소의 `site/js/main.js`를 기능별 파일로 나눈다 (news, kev, vuln, ctf, net·ping, tabs, alerts, keyword, aurora, lens…). 겉모습·동작은 그대로, 웹·바탕화면·휴대폰에서 전과 같은지 확인.
 2. 웹사이트 API에 앱 요청을 받는 CORS 설정 추가 (Tauri 출처: `http://tauri.localhost`, `tauri://localhost`).

@@ -301,11 +301,11 @@
   $('#kw-term').textContent = D.keyword[0];
   $('#kw-name').textContent = D.keyword[1];
   $('#kw-desc').textContent = D.keyword[2];
-  // 잔디: 최근 51주 (칸 11px + 틈 3px = 714px)
+  // 잔디: 1년 53주 전체. 칸 크기는 CSS가 칸 너비에 맞춰 줄인다
   let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   const LEVELS = Array.from({ length: 53 * 7 }, (_, i) => { const v = rnd() * (i / 7 > 40 ? 1.3 : 0.7); return v > 0.95 ? 'l3' : v > 0.75 ? 'l2' : v > 0.5 ? 'l1' : ''; });
   const drawGrass = () => {
-    const el = $('#grass'), weeks = 51;
+    const el = $('#grass'), weeks = 53;
     el.innerHTML = LEVELS.slice((53 - weeks) * 7).map((c) => `<i class="${c}"></i>`).join('');
   };
   drawGrass(); addEventListener('resize', drawGrass);

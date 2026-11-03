@@ -268,3 +268,7 @@ body.is-locked { overflow: hidden; }
 .u-aurora span:nth-child(3) { animation-duration: 88s; }
 @keyframes hub-drift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-6vw, 4vh, 0) scale(1.08); } }
 @media (prefers-reduced-motion: reduce) { .u-aurora span { animation: none; } }
+/* 잔디: 53주 전체를 칸 너비 안에. 칸은 정사각형으로 줄어들고, 넓어도 11px보다 커지지 않는다 */
+.grass { align-items: stretch; }
+.grass__grid { width: min(100%, 739px); grid-template-columns: repeat(53, minmax(0, 1fr)); grid-template-rows: repeat(7, auto); grid-auto-columns: unset; gap: 3px; }
+.grass__grid i { aspect-ratio: 1; }

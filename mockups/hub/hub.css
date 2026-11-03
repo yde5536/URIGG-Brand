@@ -240,3 +240,7 @@ body.is-locked { overflow: hidden; }
 .brand { grid-area: brand; }
 .stage { grid-area: stage; }
 .dock { grid-area: dock; padding-top: 14px; }
+/* 잔디는 칸 너비 안에서만, Programs 다운로드 버튼은 이름 옆 */
+.grass { flex-direction: column; align-items: flex-start; }
+.grass__grid { max-width: 100%; }
+.prog__dl { min-height: 38px; padding: 0 18px; font-size: var(--u-step-small); }

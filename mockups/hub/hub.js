@@ -284,8 +284,14 @@
   $('#kw-term').textContent = D.keyword[0];
   $('#kw-name').textContent = D.keyword[1];
   $('#kw-desc').textContent = D.keyword[2];
+  // 잔디: 1년(53주) 중 칸 너비에 들어가는 만큼만 최근 주를 보여 준다 (칸 11px + 틈 3px)
   let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  $('#grass').innerHTML = Array.from({ length: 53 * 7 }, (_, i) => { const v = rnd() * (i / 7 > 40 ? 1.3 : 0.7); return `<i class="${v > 0.95 ? 'l3' : v > 0.75 ? 'l2' : v > 0.5 ? 'l1' : ''}"></i>`; }).join('');
+  const LEVELS = Array.from({ length: 53 * 7 }, (_, i) => { const v = rnd() * (i / 7 > 40 ? 1.3 : 0.7); return v > 0.95 ? 'l3' : v > 0.75 ? 'l2' : v > 0.5 ? 'l1' : ''; });
+  const drawGrass = () => {
+    const el = $('#grass'), weeks = Math.max(8, Math.min(53, Math.floor((el.parentElement.clientWidth + 3) / 14)));
+    el.innerHTML = LEVELS.slice((53 - weeks) * 7).map((c) => `<i class="${c}"></i>`).join('');
+  };
+  drawGrass(); addEventListener('resize', drawGrass);
 
   /* 설정: 창 크기 (시안은 화면 폭을 그 크기로 줄여 보여 줌) */
   $('#btn-settings').onclick = () => { $('#settings').hidden = !$('#settings').hidden; };

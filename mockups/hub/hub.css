@@ -282,3 +282,14 @@ body.is-locked { overflow: hidden; }
 .strip .brand .u-emblem { width: 44px; height: 44px; box-shadow: 0 0 36px 4px var(--u-halo); }
 .strip .brand__title { font-size: 2rem; }
 .strip__date { padding-right: 22px; text-align: right; color: var(--u-muted); font-size: var(--u-step-small); }
+
+/* v6: 띠를 키우고 안의 내용을 위아래 가운데로, 띠 아래 간격을 넓게 */
+:root { --brand-h: 84px; --strip-gap: 28px; }
+.deck { row-gap: var(--strip-gap); height: calc(100vh - var(--bar-h) - var(--pad) * 2); }
+.strip { align-content: center; }
+.strip > * { align-self: center; margin: 0; }
+.strip .side__clock { font-size: 2.5rem; line-height: 1; }
+.strip .brand { display: flex; align-items: center; }
+.strip .brand .u-emblem { width: 56px; height: 56px; }
+.strip .brand__title { font-size: 2.5rem; line-height: 1; }
+.strip__date { font-size: var(--u-step-body); line-height: 1; }

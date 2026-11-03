@@ -68,7 +68,6 @@ window.HUB = {
   keyword: ['모의해킹', 'Penetration Testing', '허락을 받고 실제 공격자처럼 시스템을 공격해 취약점을 찾는 점검'],
   vuln: { alias: 'Log4Shell', cve: 'CVE-2021-44228', target: 'Apache Log4j 2', type: '원격 코드 실행', cvss: '10.0',
     desc: '로그에 ${jndi:ldap://…} 문자열이 찍히면 Log4j가 외부 서버에서 자바 클래스를 받아 실행했다. 로그만 남겨도 뚫리는 셈이라 전 세계 서버가 긴급 패치했다.' },
-  net: { ip: '203.0.113.7', isp: 'Korea Telecom', ms: [24, 22, 23, 27, 25, 22, 21, 24, 31, 26, 23, 22, 24, 23, 22, 25, 28, 24, 23, 22, 21, 23, 24, 22] },
-  shortcuts: ['claude', 'visualstudiocode', 'youtube', 'github', 'tistory', 'dreamhack', 'googlechrome', 'explorer', 'vmware'],
-  shortcutNames: ['Claude', 'VS Code', 'YouTube', 'GitHub', '티스토리', '드림핵', 'Chrome', '파일 탐색기', 'VMware'],
+  net: { ip: '203.0.113.7', isp: 'Korea Telecom', asn: 4766, city: 'Seoul', country: 'KR', vpn: false, http: 'HTTP/3', tls: 'TLSv1.3', colo: 'ICN', conn: '4G · 지연 50ms · 1.45Mbps',
+    ms: [24, 22, 23, 27, 25, 22, 21, 24, 31, 26, 23, 22, 24, 23, 22, 25, 28, 24, 23, 22, 21, 23, 24, 22, 23, 26, 24, 22, 21, 23, 25, 24, 22, 23, 88, 27, 24, 23, 22, 21, 22, 24, 23, 25, 24, 22, 23, 24, 22, 21, null, 23, 24, 22, 23, 25, 24, 23, 22, 23] },
 };

@@ -17,19 +17,20 @@
 <body class="u-page">
   <div class="u-aurora" aria-hidden="true"><span></span><span></span><span></span></div>
 
-  <!-- 앱 전용 제목 줄: 끌어서 창 이동, 오른쪽에 잠그기·설정·계정과 창 버튼 (시안에서는 모양만) -->
+  <!-- 앱 전용 제목 줄 (시안에서는 모양만, 설정 버튼은 열림) -->
   <header class="bar" data-ui>
     <span class="bar__mark"><img src="../../logo/mark-64.webp" alt="" width="20" height="20">URIGG</span>
     <span class="bar__actions">
+      <button type="button" class="bar__btn bar__alert" id="btn-alerts" aria-label="알림으로 이동"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><b id="bar-count">2</b></button>
       <button type="button" class="bar__btn" id="btn-lock" aria-label="잠그기 (Ctrl+L)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
-      <button type="button" class="bar__btn" aria-label="설정 (Ctrl+,)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      <button type="button" class="bar__btn" id="btn-settings" aria-label="설정 (Ctrl+,)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>
       <button type="button" class="bar__btn" aria-label="계정"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></button>
       <span class="bar__win" aria-hidden="true"><i>─</i><i>▢</i><i class="is-close">✕</i></span>
     </span>
   </header>
 
   <main class="hub">
-    <!-- 첫 화면: 왼쪽 오늘(시계·D-day·타임라인) · 가운데 커맨드 센터 · 오른쪽 불러올 수 있는 칸들 -->
+    <!-- 첫 화면: 왼쪽 오늘 · 가운데 커맨드 센터 · 오른쪽 사이드바(제목 목록) -->
     <section class="deck" aria-label="오늘">
       <aside class="u-tile side" aria-label="오늘 타임라인">
         <p class="side__clock" id="clock">14:32:08</p>
@@ -41,72 +42,57 @@
 
       <section class="center" aria-label="커맨드 센터">
         <header class="brand">
-          <img class="u-emblem" src="../../logo/emblem-320.webp" alt="URIGG 로고" width="88" height="88">
+          <img class="u-emblem" src="../../logo/emblem-320.webp" alt="URIGG 로고" width="72" height="72">
           <h1 class="brand__title"><span class="sr-only">URIGG · Security.log HUB</span><span id="title" aria-hidden="true">Security.log HUB</span></h1>
         </header>
         <div class="stage" id="stage">
-          <!-- 맥 터미널 모양: 동그라미 세 개는 평소 회색, 마우스를 올리면 색 -->
           <div class="term" id="term">
-            <div class="term__bar"><span class="term__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="term__title">urigg@hub — zsh — 120×32</span></div>
+            <div class="term__bar"><span class="term__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="term__title">urigg@hub: ~</span></div>
             <div class="term__body" id="term-body" tabindex="0" aria-label="허브 터미널"></div>
           </div>
         </div>
       </section>
 
-      <div class="rail">
-        <article class="u-tile slot" data-key="news" aria-label="Security News · KEV · Vuln">
-          <div class="u-tile__head"><div class="u-tabs" role="tablist"><span class="u-tabs__pill"></span><button role="tab" aria-selected="true">Security News</button><button role="tab" aria-selected="false">KEV</button><button role="tab" aria-selected="false">Vuln</button></div></div>
-          <ol class="rows" id="news-rows"></ol>
-        </article>
-        <article class="u-tile slot" data-key="ctf" aria-label="CTF">
-          <div class="u-tile__head"><h2 class="u-tile__title">CTF</h2><span class="u-tile__more">CTFtime</span></div>
-          <ul class="rows" id="ctf-rows"></ul>
-        </article>
-      </div>
-
-      <div class="rail">
-        <nav class="u-tile slot keys-tile" data-key="shortcuts" aria-label="Shortcuts">
-          <div class="u-tile__head"><h2 class="u-tile__title">Shortcuts</h2></div>
-          <div class="keys" id="keys"></div>
-        </nav>
-        <article class="u-tile slot" data-key="net" aria-label="Network">
-          <div class="u-tile__head"><h2 class="u-tile__title">Network</h2><span class="u-tile__more" id="net-ms">23 ms</span></div>
-          <p class="net-ip" id="net-ip">203.0.113.7</p>
-          <svg class="spark" id="spark" viewBox="0 0 240 40" preserveAspectRatio="none" aria-label="최근 30분 지연 시간"></svg>
-        </article>
-        <article class="u-tile slot" data-key="keyword" aria-label="Keyword">
-          <div class="u-tile__head"><h2 class="u-tile__title">Keyword</h2><span class="u-tile__more">오늘</span></div>
-          <p class="kw-term" id="kw-term"></p>
-          <p class="kw-name" id="kw-name"></p>
-        </article>
-        <article class="u-tile slot" data-key="alerts" aria-label="알림">
-          <div class="u-tile__head"><h2 class="u-tile__title">알림</h2><span class="count" id="alert-count">2</span></div>
-          <ul class="rows alerts" id="alert-rows"></ul>
-        </article>
-      </div>
+      <!-- 사이드바: 제목과 상태만. 항목은 hub.js의 PANELS 목록에서 만든다 -->
+      <nav class="u-tile dock" aria-label="불러올 수 있는 칸">
+        <p class="dock__label">Panels</p>
+        <ul class="dock__list" id="dock"></ul>
+        <p class="dock__hint"><kbd>Esc</kbd> 터미널로</p>
+      </nav>
     </section>
 
-    <!-- 아래로 스크롤: 달력 + D-day 설정 (터미널로 조작은 되지만 가운데로 불러오지는 않음), 잔디, Programs -->
-    <section class="u-tile cal" aria-labelledby="cal-title">
-      <div class="u-tile__head"><h2 class="u-tile__title" id="cal-title">2026년 11월</h2><span class="u-tile__more">달력 · D-day 설정</span></div>
-      <div class="cal__body">
-        <div class="month" id="month" role="grid" aria-label="11월 달력"></div>
-        <div class="dset">
-          <h3 class="dset__title">D-day</h3>
-          <ul class="dset__list" id="dday-list"></ul>
-          <form class="dset__form" onsubmit="return false">
-            <input type="text" placeholder="이름 · 캘린더 일정에서 찾아요" aria-label="D-day 이름">
-            <input type="date" value="2026-12-01" aria-label="날짜">
-            <button class="u-btn" type="submit">추가</button>
-          </form>
+    <!-- 아래로 스크롤: 칸 없이 배경 위에. 달력(위젯 앱) | D-day / 알림, 잔디 | 키워드 -->
+    <section class="below" aria-label="달력과 기록">
+      <div class="below__cal">
+        <h2 class="below__title">Today</h2>
+        <iframe class="cal-frame" src="https://urigg.pages.dev/calendar/" title="코워크 캘린더 위젯" loading="lazy"></iframe>
+      </div>
+      <div class="below__dday">
+        <h2 class="below__title">D-day</h2>
+        <ul class="dset__list" id="dday-list"></ul>
+        <form class="dset__form" onsubmit="return false">
+          <input type="text" placeholder="이름 · 캘린더 일정에서 찾아요" aria-label="D-day 이름">
+          <input type="date" value="2026-12-01" aria-label="날짜">
+          <button class="u-btn" type="submit">추가</button>
+        </form>
+      </div>
+      <div class="below__alerts" id="alerts-section">
+        <h2 class="below__title">알림 <span class="count" id="alert-count">2</span></h2>
+        <ul class="rows alerts" id="alert-rows"></ul>
+      </div>
+      <div class="below__grass">
+        <h2 class="below__title">Commits <span class="below__sub">지난 1년 · 전체 저장소</span></h2>
+        <div class="grass">
+          <div class="grass__grid" id="grass" role="img" aria-label="지난 1년 커밋 잔디"></div>
+          <dl class="grass__stats"><div><dt>연속</dt><dd>7일</dd></div><div><dt>이번 주</dt><dd>90</dd></div><div><dt>올해</dt><dd>1,284</dd></div></dl>
         </div>
       </div>
-    </section>
-
-    <section class="u-tile grass" aria-labelledby="grass-title">
-      <div class="u-tile__head"><h2 class="u-tile__title" id="grass-title">Commits</h2><span class="u-tile__more">지난 1년 · 전체 저장소</span></div>
-      <div class="grass__grid" id="grass" role="img" aria-label="지난 1년 커밋 잔디"></div>
-      <dl class="grass__stats"><div><dt>연속</dt><dd>7일</dd></div><div><dt>이번 주</dt><dd>90</dd></div><div><dt>올해</dt><dd>1,284</dd></div></dl>
+      <div class="below__kw">
+        <h2 class="below__title">Keyword <span class="below__sub">오늘의 보안 키워드</span></h2>
+        <p class="kw-term" id="kw-term"></p>
+        <p class="kw-name" id="kw-name"></p>
+        <p class="kw-desc" id="kw-desc"></p>
+      </div>
     </section>
 
     <section class="u-tile programs" aria-labelledby="prog-title">
@@ -117,13 +103,33 @@
     <footer class="end"><p>Connection to urigg closed. <span>EOF</span></p></footer>
   </main>
 
+  <!-- 설정: 오른쪽에서 밀려 나오는 유리판 (시안: 창 크기만 실제로 바뀜) -->
+  <aside class="settings" id="settings" hidden aria-label="설정">
+    <div class="settings__head"><h2>설정</h2><button type="button" class="big__esc" id="settings-close"><kbd>Esc</kbd> 닫기</button></div>
+    <section><h3>창</h3>
+      <label class="set-row"><span>창 크기</span>
+        <select id="win-size"><option value="1536x864">노트북 1536 × 864</option><option value="1280x720">1280 × 720</option><option value="1920x1080">1920 × 1080</option><option value="fit">창에 맞추기</option></select></label>
+      <label class="set-row"><span>닫기 버튼</span><select><option>트레이로 숨기기</option><option>종료</option></select></label>
+    </section>
+    <section><h3>시작</h3>
+      <label class="set-row"><span>Windows 시작 시 실행</span><input type="checkbox" checked></label>
+      <label class="set-row"><span>자리 비우면 잠금</span><select><option>30분</option><option>10분</option><option>안 함</option></select></label>
+    </section>
+    <section><h3>계정</h3>
+      <p class="set-row"><span>로그인</span><b>URIGG</b></p>
+      <p class="set-row"><span>PIN 바꾸기</span><button type="button" class="u-btn-ghost">바꾸기</button></p>
+    </section>
+    <section><h3>업데이트</h3>
+      <p class="set-row"><span>버전</span><b>0.1.0 · 최신</b></p>
+    </section>
+  </aside>
+
   <!-- 잠금 화면: 가운데 프로필, PIN (시안: 아무 6자리나 입력하면 열림) -->
   <div class="lock" id="lock" hidden>
     <div class="lock__card">
       <img class="u-emblem lock__emblem" src="../../logo/emblem-320.webp" alt="" width="128" height="128">
       <p class="lock__name">URIGG</p>
       <label class="lock__pin"><span class="sr-only">PIN</span><input id="pin" type="password" inputmode="numeric" maxlength="6" placeholder="PIN" autocomplete="off"></label>
-      <div class="lock__dots" id="pin-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <button type="button" class="lock__alt">비밀번호로 로그인</button>
     </div>
     <p class="lock__clock" id="lock-clock">14:32</p>

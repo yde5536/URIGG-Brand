@@ -1,5 +1,6 @@
-// 허브 시안 동작: 시계, 지지직 제목, 타임라인('지금' 고정), 터미널 명령, 칸 불러오기(Esc로 복귀), 잠금 화면.
-// 주소 뒤 ?scene=lock 은 잠금 화면, ?scene=summon 은 KEV를 불러온 상태로 연다 (스크린샷용).
+// 허브 시안 동작: 시계, 지지직 제목, 타임라인('지금' 고정), 터미널, 사이드바 칸 불러오기(날아가서 커짐 · Esc로 날아서 복귀),
+// 아래 영역(D-day·알림·잔디·키워드), 설정(창 크기), 잠금 화면.
+// 주소 뒤 ?scene=lock / summon / net / settings 로 그 장면을 바로 연다 (스크린샷용).
 (() => {
   const D = window.HUB, $ = (s) => document.querySelector(s);
   const esc = (s = '') => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -8,9 +9,26 @@
   const DAY = 86400000;
   const daysTo = (iso) => Math.round((new Date(iso + 'T00:00:00+09:00') - new Date(kst().toISOString().slice(0, 10) + 'T00:00:00+09:00')) / DAY);
   const ddLabel = (n) => (n === 0 ? 'D-DAY' : n > 0 ? `D-${n}` : `D+${-n}`);
+  const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── 사이드바 칸 목록 ─────────────────────────
+     새 칸은 여기에 한 줄 더하면 된다: 사이드바 버튼, 'open <id>' 명령, Tab 자동 완성, 날아가는 움직임이 알아서 붙는다.
+     id: 명령 이름 · title: 사이드바와 큰 칸의 제목 · status(): 제목 옆 상태 · body(): 가운데에 크게 그릴 내용 */
+  const okMs = D.net.ms.filter((v) => v != null);
+  const PANELS = [
+    { id: 'news', title: 'Security News', status: () => ({ text: `${D.news.length}건` }),
+      body: () => `<ol class="rows">${D.news.map((x) => `<li><span>${esc(x.s)}</span><span>${esc(x.t)}</span><time>${x.ago}</time></li>`).join('')}</ol>` },
+    { id: 'kev', title: 'KEV', status: () => ({ text: '2 new', warn: true }),
+      body: () => `<ol class="rows">${D.kev.map((x) => `<li><span>${esc(x.v)}</span><span>${esc(x.c)} · ${esc(x.p)}</span><time>${x.ago}</time></li>`).join('')}</ol>` },
+    { id: 'vuln', title: 'Vuln', status: () => ({ text: D.vuln.alias }),
+      body: () => `<div><p style="font-size:2.25rem;font-weight:700;letter-spacing:-0.03em">${esc(D.vuln.alias)}</p><p style="color:var(--u-muted);margin-top:4px">${D.vuln.cve} · ${esc(D.vuln.target)} · ${D.vuln.type} · CVSS ${D.vuln.cvss}</p><p style="margin-top:18px;font-size:var(--u-step-lead);line-height:1.6;max-width:60ch">${esc(D.vuln.desc)}</p></div>` },
+    { id: 'ctf', title: 'CTF', status: () => ({ text: 'D-3' }),
+      body: () => `<ul class="rows ctf">${D.ctf.map((x) => `<li><span>${esc(x.t)}${x.beginner ? '<b class="chip">초보</b>' : ''}</span><time>${x.when} · ${x.len}</time></li>`).join('')}</ul>` },
+    { id: 'net', title: 'Network', status: () => ({ text: `${okMs.at(-1)} ms` }), body: () => netBig() },
+  ];
 
   /* 시계 · 날짜 · D-day */
-  const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
   const tick = () => {
     const t = kst();
     $('#clock').textContent = `${two(t.getHours())}:${two(t.getMinutes())}:${two(t.getSeconds())}`;
@@ -26,7 +44,7 @@
   const GLYPHS = '!<>-_\\/[]{}=+*^?#';
   const title = $('#title');
   const scramble = (to) => {
-    const from = title.textContent, len = Math.max(from.length, to.length), t0 = performance.now();
+    const len = Math.max(title.textContent.length, to.length), t0 = performance.now();
     const step = (now) => {
       const k = Math.min(1, (now - t0) / 700);
       title.textContent = [...Array(len)].map((_, i) => (i < to.length * k ? to[i] || '' : GLYPHS[(Math.random() * GLYPHS.length) | 0])).join('');
@@ -37,86 +55,102 @@
   let titleAt = 1; const TITLES = ['URIGG', 'Security.log HUB'];
   setInterval(() => { titleAt = 1 - titleAt; scramble(TITLES[titleAt]); }, 15000);
 
-  /* 타임라인: '지금'은 위에서 1/3에 고정, 일정은 시간에 따라 위로 흐른다 (1시간 = 46px) */
-  const tl = $('#timeline'), PX_H = 46;
+  /* 타임라인: '지금'은 위에서 1/3에 고정, 일정이 시간에 따라 위로 흐른다 (1시간 = 44px) */
+  const tl = $('#timeline'), PX_H = 44;
   const drawTimeline = () => {
     const t = kst(), now = t.getHours() * 60 + t.getMinutes(), H = tl.clientHeight, nowY = H * 0.33;
-    const items = D.today.filter((e) => !e.allDay).map((e) => { const [h, m] = e.at.split(':').map(Number); return { ...e, min: h * 60 + m }; });
     const y = (min) => nowY + ((min - now) / 60) * PX_H;
     $('#allday').innerHTML = D.today.filter((e) => e.allDay).map((e) => `<span>종일 · ${esc(e.title)}</span>`).join('');
     let html = '';
     for (const h of [0, 3, 6, 9, 12, 15, 18, 21, 24]) html += `<div class="tl__item is-day" style="top:${y(h * 60)}px"><i></i><time>${two(h % 24)}:00</time><span>${h === 24 ? '내일' : ''}</span></div>`;
-    for (const e of items) html += `<div class="tl__item${e.min < now ? ' is-past' : ''}" style="top:${y(e.min)}px"><i></i><time>${e.at}</time><span>${esc(e.title)}</span></div>`;
-    D.tomorrow.forEach((e, i) => { html += `<div class="tl__item" style="top:${y(24 * 60 + 60 + i * 40)}px"><i></i><time>11/4</time><span>${esc(e.title)}</span></div>`; });
+    for (const e of D.today.filter((x) => !x.allDay)) {
+      const [hh, mm] = e.at.split(':').map(Number), min = hh * 60 + mm;
+      html += `<div class="tl__item${min < now ? ' is-past' : ''}" style="top:${y(min)}px"><i></i><time>${e.at}</time><span>${esc(e.title)}</span></div>`;
+    }
+    D.tomorrow.forEach((e, i) => { html += `<div class="tl__item" style="top:${y(24 * 60 + 60 + i * 40)}px"><i></i><time>내일</time><span>${esc(e.title)}</span></div>`; });
     html += `<div class="tl__now"><i></i><b>지금 ${two(t.getHours())}:${two(t.getMinutes())}</b></div>`;
     tl.innerHTML = html;
   };
   drawTimeline(); setInterval(drawTimeline, 30000); addEventListener('resize', drawTimeline);
 
-  /* 오른쪽 칸들 */
-  const newsRows = (n = 6) => D.news.slice(0, n).map((x) => `<li><span>${esc(x.s)}</span><span>${esc(x.t)}</span><time>${x.ago}</time></li>`).join('');
-  const ctfRows = (n = 4) => D.ctf.slice(0, n).map((x) => `<li><span>${esc(x.t)}${x.beginner ? '<b class="chip">초보</b>' : ''}</span><time>${x.when} · ${x.len}</time></li>`).join('');
-  const alertRows = () => D.alerts.map((a) => `<li class="${a.warn ? 'is-warn' : ''}"><b>${a.warn ? '!' : '·'}</b><span>${esc(a.text)}</span><time>${a.time}</time></li>`).join('');
-  const keyHtml = (size) => D.shortcuts.map((k, i) => `<a class="u-key" href="#"><span class="u-key__glass"${size ? ` style="width:${size}px"` : ''}><img src="../../icons/${k}.svg" alt=""></span>${D.shortcutNames[i]}</a>`).join('');
-  const sparkPath = (ms, w = 240, h = 40) => { const max = Math.max(50, ...ms); return ms.map((v, i) => `${i ? 'L' : 'M'}${(i / (ms.length - 1)) * w} ${h - 3 - (v / max) * (h - 6)}`).join(''); };
-  $('#news-rows').innerHTML = newsRows(D.news.length);
-  $('#ctf-rows').innerHTML = ctfRows();
-  $('#alert-rows').innerHTML = alertRows();
-  $('#keys').innerHTML = keyHtml();
-  $('#kw-term').textContent = D.keyword[0];
-  $('#kw-name').textContent = D.keyword[1];
-  $('#spark').innerHTML = `<path d="${sparkPath(D.net.ms)}"/>`;
-  $('#net-ms').textContent = `${D.net.ms.at(-1)} ms`;
-  document.querySelectorAll('.u-tabs').forEach((g) => {
-    const pill = g.querySelector('.u-tabs__pill'), on = g.querySelector('[aria-selected="true"]');
-    const move = () => { pill.style.width = `${on.offsetWidth}px`; pill.style.transform = `translateX(${on.offsetLeft}px)`; };
-    document.fonts?.ready.then(move); move();
-  });
+  /* Network 크게: 바탕화면 Network 탭의 정보 전부 + 지연 시간 꺾은선 */
+  function netBig() {
+    const W = 600, H = 200, max = Math.max(50, Math.ceil(Math.max(...okMs) / 50) * 50);
+    const x = (i) => (i / (D.net.ms.length - 1)) * W, y = (v) => H - 4 - (v / max) * (H - 8);
+    let d = '', pen = false, gaps = '';
+    D.net.ms.forEach((v, i) => { if (v == null) { pen = false; gaps += `<line class="gap" x1="${x(i)}" x2="${x(i)}" y1="0" y2="${H}"/>`; return; } d += `${pen ? 'L' : 'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`; pen = true; });
+    const avg = Math.round(okMs.reduce((a, b) => a + b, 0) / okMs.length), n = D.net;
+    return `<div class="netbig">
+      <dl>
+        <div><dt>공인 IP</dt><dd class="ip">${n.ip}</dd></div>
+        <div><dt>통신사</dt><dd>${n.isp} <span style="color:var(--u-muted)">AS${n.asn}</span></dd></div>
+        <div><dt>위치</dt><dd>${n.city}, ${n.country}</dd></div>
+        <div><dt>VPN·프록시</dt><dd>${n.vpn ? '사용 중 (추정)' : '안 씀 (추정)'}</dd></div>
+        <div><dt>연결</dt><dd>${n.http} · ${n.tls} · Cloudflare ${n.colo}</dd></div>
+        <div><dt>브라우저</dt><dd>${n.conn}</dd></div>
+      </dl>
+      <div class="chart">
+        <div class="chart__head"><span>지연 시간 · 최근 30분 · 30초마다</span><b>${okMs.at(-1)} ms</b></div>
+        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><line class="grid" x1="0" x2="${W}" y1="4" y2="4"/><line class="grid" x1="0" x2="${W}" y1="${H - 4}" y2="${H - 4}"/>${gaps}<path class="line" d="${d}"/></svg>
+        <p class="chart__stats">최저 ${Math.min(...okMs)} · 평균 ${avg} · 최고 ${Math.max(...okMs)} ms · 눈금 ${max} ms · 점선은 끊긴 때</p>
+      </div>
+    </div>`;
+  }
 
-  /* 불러온 칸의 큰 모습 */
-  const BIG = {
-    news: ['Security News', `<ol class="rows">${newsRows(D.news.length)}</ol>`],
-    kev: ['KEV · 실제 악용 중인 취약점', `<ol class="rows">${D.kev.map((x) => `<li><span>${esc(x.v)}</span><span>${esc(x.c)} · ${esc(x.p)}</span><time>${x.ago}</time></li>`).join('')}</ol>`],
-    vuln: [`Vuln · ${D.vuln.alias}`, `<div class="rows"><p class="muted" style="color:var(--u-muted)">${D.vuln.cve} · ${esc(D.vuln.target)} · ${D.vuln.type} · CVSS ${D.vuln.cvss}</p><p style="margin-top:14px;font-size:var(--u-step-lead);line-height:1.6;max-width:62ch">${esc(D.vuln.desc)}</p></div>`],
-    ctf: ['CTF · 다가오는 대회', `<ul class="rows" id="big-ctf">${ctfRows(4)}</ul>`],
-    alerts: ['알림', `<ul class="rows alerts">${alertRows()}</ul>`],
-    keyword: ['Keyword · 오늘의 보안 키워드', `<div><p style="font-size:3.5rem;font-weight:700;letter-spacing:-0.04em">${esc(D.keyword[0])}</p><p style="color:var(--u-muted)">${esc(D.keyword[1])}</p><p style="margin-top:18px;font-size:var(--u-step-lead)">${esc(D.keyword[2])}</p></div>`],
-    net: ['Network · 지연 시간', `<div><p class="net-ip" style="font-size:2rem">${D.net.ip} <span style="font-family:var(--u-font);font-size:1rem;color:var(--u-muted)">${D.net.isp}</span></p><svg class="spark" viewBox="0 0 600 160" preserveAspectRatio="none" style="height:55%;margin-top:24px"><path d="${sparkPath(D.net.ms, 600, 160)}"/></svg></div>`],
-    shortcuts: ['Shortcuts', `<div class="keys" style="grid-template-columns:repeat(9,1fr);align-content:center;height:100%">${keyHtml(96)}</div>`],
-  };
-  const SLOT_OF = { news: 'news', kev: 'news', vuln: 'news', ctf: 'ctf', alerts: 'alerts', keyword: 'keyword', net: 'net', shortcuts: 'shortcuts' };
+  /* 사이드바 그리기 */
+  const dock = $('#dock');
+  dock.innerHTML = PANELS.map((p) => { const s = p.status(); return `<li><button type="button" class="dock__item" data-id="${p.id}"><b>${esc(p.title)}</b><span class="${s.warn ? 'is-warn' : ''}">${esc(s.text)}</span></button></li>`; }).join('');
+  dock.addEventListener('click', (e) => { const b = e.target.closest('.dock__item'); if (b) summon(b.dataset.id); });
+
+  /* 불러오기: 사이드바 버튼 자리에서 터미널 자리로 날아가며 커진다. Esc면 반대로 */
   const stage = $('#stage');
-  let open = null;
-  const back = () => {
-    if (!open) return;
-    stage.querySelector('.big')?.remove();
-    document.querySelector(`.slot[data-key="${SLOT_OF[open]}"]`)?.classList.remove('is-away');
-    stage.classList.remove('is-summoned');
-    open = null;
-    $('#cmd')?.focus();
-  };
-  const summon = (key) => {
-    back();
-    const [name, body] = BIG[key];
+  let open = null, flying = false;
+  const FLY = 420;
+  const flyFrames = (from, to) => [
+    { transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})`, opacity: 0.6 },
+    { transform: 'none', opacity: 1 },
+  ];
+  function summon(id) {
+    const p = PANELS.find((x) => x.id === id);
+    if (!p || flying || open === id) return;
+    if (open) back(true);
+    const btn = dock.querySelector(`[data-id="${id}"]`);
     const el = document.createElement('article');
     el.className = 'u-tile big';
-    el.innerHTML = `<div class="u-tile__head"><h2 class="u-tile__title" style="font-size:1.75rem">${esc(name)}</h2><button type="button" class="big__esc"><kbd>Esc</kbd> 터미널로</button></div>${body}`;
-    el.querySelector('.big__esc').onclick = back;
+    el.innerHTML = `<div class="u-tile__head"><h2 class="u-tile__title" style="font-size:1.75rem">${esc(p.title)}</h2><button type="button" class="big__esc"><kbd>Esc</kbd> 터미널로</button></div><div class="big__body">${p.body()}</div>`;
+    el.querySelector('.big__esc').onclick = () => back();
     stage.append(el);
     stage.classList.add('is-summoned');
-    document.querySelector(`.slot[data-key="${SLOT_OF[key]}"]`)?.classList.add('is-away');
-    open = key;
-  };
-  document.querySelectorAll('.slot').forEach((s) => s.addEventListener('click', (e) => { if (!e.target.closest('a')) summon(s.dataset.key); }));
+    btn.classList.add('is-away');
+    open = id;
+    if (!reduced) {
+      flying = true;
+      el.animate(flyFrames(btn.getBoundingClientRect(), el.getBoundingClientRect()), { duration: FLY, easing: 'cubic-bezier(0.2, 0.9, 0.25, 1)' }).onfinish = () => { flying = false; };
+      el.querySelector('.big__body').animate([{ opacity: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 1 }], { duration: FLY });
+    }
+  }
+  function back(instant) {
+    if (!open) return;
+    const el = stage.querySelector('.big'), btn = dock.querySelector(`[data-id="${open}"]`);
+    open = null;
+    stage.classList.remove('is-summoned');
+    const done = () => { el.remove(); btn.classList.remove('is-away'); $('#cmd')?.focus(); };
+    if (reduced || instant) { flying = false; return done(); }
+    flying = true;
+    el.querySelector('.big__body').style.opacity = 0;
+    el.animate(flyFrames(btn.getBoundingClientRect(), el.getBoundingClientRect()).reverse(), { duration: FLY - 60, easing: 'cubic-bezier(0.5, 0, 0.75, 0)', fill: 'forwards' }).onfinish = () => { flying = false; done(); };
+  }
+
+  /* 단축키 */
   addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') back();
+    if (e.key === 'Escape') { if (!$('#settings').hidden) $('#settings').hidden = true; else back(); }
     if (e.ctrlKey && e.key.toLowerCase() === 'l') { e.preventDefault(); lock(); }
+    if (e.ctrlKey && e.key === ',') { e.preventDefault(); $('#settings').hidden = false; }
   });
 
-  /* 터미널 */
+  /* 터미널 (명령어는 나중에 정함, 지금은 예시) */
   const body = $('#term-body');
-  const PS1 = '<span class="ps1"><b>urigg@hub</b> <em>~ %</em></span>';
-  const line = (html, cls = '') => { const p = document.createElement('p'); if (cls) p.className = cls; p.innerHTML = html; inputRow.before(p); body.scrollTop = body.scrollHeight; };
+  const PS1 = '<span class="ps1"><b>urigg@hub</b>:<em>~</em>$</span>';
   const t0 = kst();
   body.innerHTML = `<p class="muted">Last login: ${WEEK[t0.getDay()]} ${t0.getMonth() + 1}/${t0.getDate()} 09:12 on hub</p>`;
   const inputRow = document.createElement('p');
@@ -127,62 +161,40 @@
   hint.className = 'hint';
   hint.textContent = 'help 명령 목록 · open <칸> 크게 보기 · Tab 자동 완성 · ↑↓ 이전 명령 · Esc 터미널로';
   body.append(hint);
-
-  const NAMES = Object.keys(BIG);
-  const RUN = { vmware: 'VMware', explorer: '파일 탐색기', code: 'VS Code', chrome: 'Chrome', claude: 'Claude' };
+  const line = (html, cls = '') => { const p = document.createElement('p'); if (cls) p.className = cls; p.innerHTML = html; inputRow.before(p); body.scrollTop = body.scrollHeight; };
+  const IDS = PANELS.map((p) => p.id);
   const CMDS = {
-    help: () => [
-      'open <칸>        칸을 가운데로 크게   (news · kev · vuln · ctf · alerts · keyword · net · shortcuts)',
-      'back            터미널로 돌아오기 (Esc)',
-      'status          오늘 요약',
-      'today           오늘 일정',
-      'dday            D-day 목록     dday add <이름> <YYYY-MM-DD>',
-      'ip · ping       내 공인 IP, 지금 지연 시간',
-      'kw · vuln       오늘의 키워드, 취약점 해설',
-      'run <앱>        vmware · explorer · code · chrome · claude',
-      'lock · clear',
-    ].map(esc).join('\n'),
-    status: () => {
-      const next = D.today.filter((e) => !e.allDay).map((e) => e).find((e) => e.at > `${two(kst().getHours())}:${two(kst().getMinutes())}`);
-      return [
-        `오늘 일정 ${D.today.length}개${next ? ` · 다음 <b>${next.at} ${esc(next.title)}</b>` : ''}`,
-        `<span class="warn">KEV 새 항목 2</span>  Ivanti Connect Secure`,
-        `<span class="ok">초보 CTF</span>  CSCTF 2026 · 11/6 22:00 시작 (D-3)`,
-        `${main.title} ${ddLabel(daysTo(main.date))}`,
-      ].join('\n');
-    },
-    today: () => D.today.map((e) => `${e.allDay ? ' 종일 ' : e.at}  ${esc(e.title)}`).join('\n'),
-    dday: (args) => {
-      if (args[0] === 'add') {
-        const date = args.at(-1), name = args.slice(1, -1).join(' ');
+    help: () => [`open <칸>      칸을 가운데로   (${IDS.join(' · ')})`, 'today          오늘 일정', 'dday           D-day 목록   dday add <이름> <YYYY-MM-DD>', 'status · kw · ip · ping · lock · clear', '<span class="muted">명령어는 아직 정하는 중 (시안)</span>'].join('\n'),
+    status: () => [`오늘 일정 ${D.today.length}개`, '<span class="warn">KEV 새 항목 2</span>  Ivanti Connect Secure', '<span class="ok">초보 CTF</span>  CSCTF 2026 · 11/6 22:00 시작 (D-3)', `${main.title} ${ddLabel(daysTo(main.date))}`].join('\n'),
+    today: () => D.today.map((e) => `${e.allDay ? ' 종일' : e.at}  ${esc(e.title)}`).join('\n'),
+    dday: (a) => {
+      if (a[0] === 'add') {
+        const date = a.at(-1), name = a.slice(1, -1).join(' ');
         if (!name || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return '<span class="warn">사용법: dday add 이름 YYYY-MM-DD</span>';
         D.dday.list.push({ title: name, date }); drawDdays();
-        return `<span class="ok">✓</span> D-day 추가: ${esc(name)} · ${ddLabel(daysTo(date))}  <span class="muted">(아래 달력 칸에도 들어갔어요)</span>`;
+        return `<span class="ok">✓</span> D-day 추가: ${esc(name)} · ${ddLabel(daysTo(date))}  <span class="muted">(아래 D-day에도 들어갔어요)</span>`;
       }
       return [main, ...D.dday.list].map((d) => `${ddLabel(daysTo(d.date)).padEnd(6)}  ${esc(d.title)}  <span class="muted">${d.date}</span>`).join('\n');
     },
-    ip: () => `${D.net.ip}  <span class="muted">${D.net.isp} · VPN 안 씀 (추정)</span>`,
-    ping: () => `cloudflare  ${D.net.ms.at(-1)} ms  <span class="muted">최근 30분 평균 ${Math.round(D.net.ms.reduce((a, b) => a + b, 0) / D.net.ms.length)} ms</span>`,
     kw: () => `<b>${esc(D.keyword[0])}</b>  <span class="muted">${esc(D.keyword[1])}</span>\n${esc(D.keyword[2])}`,
-    vuln: () => `<b>${D.vuln.alias}</b>  <span class="muted">${D.vuln.cve} · CVSS ${D.vuln.cvss}</span>\n${esc(D.vuln.desc)}`,
-    run: (args) => (RUN[args[0]] ? `<span class="ok">↗</span> ${RUN[args[0]]} 실행  <span class="muted">(시안이라 실제로는 열지 않아요)</span>` : `<span class="warn">run: 모르는 앱 '${esc(args[0] || '')}'</span>`),
-    open: (args) => {
-      const k = args[0];
-      if (k === 'cal' || k === 'calendar' || k === 'dday') return '달력과 D-day 설정은 가운데로 불러오지 않아요. 아래로 스크롤하면 있어요. <span class="muted">(today, dday 명령은 여기서 돼요)</span>';
-      if (!BIG[k]) return `<span class="warn">open: 모르는 칸 '${esc(k || '')}'</span>  <span class="muted">${NAMES.join(' · ')}</span>`;
-      setTimeout(() => summon(k), 60);
-      return `<span class="muted">${k} 칸을 가운데로 불러왔어요 · Esc로 돌아와요</span>`;
+    ip: () => `${D.net.ip}  <span class="muted">${D.net.isp} · VPN 안 씀 (추정)</span>`,
+    ping: () => `cloudflare  ${okMs.at(-1)} ms`,
+    open: (a) => {
+      const k = a[0];
+      if (['cal', 'calendar', 'dday', 'today', 'alerts', 'kw', 'grass'].includes(k)) return '그건 가운데로 불러오지 않아요. 아래로 스크롤하면 있어요.';
+      if (!IDS.includes(k)) return `<span class="warn">open: 모르는 칸 '${esc(k || '')}'</span>  <span class="muted">${IDS.join(' · ')}</span>`;
+      setTimeout(() => summon(k), 40);
+      return `<span class="muted">${k} → 가운데 · Esc로 돌아와요</span>`;
     },
-    back: () => { back(); return ''; },
     lock: () => { setTimeout(lock, 200); return '<span class="muted">잠그는 중…</span>'; },
     clear: () => { body.querySelectorAll('p:not(.term__input):not(.hint)').forEach((p) => p.remove()); return null; },
   };
   const history = []; let hAt = 0;
   const exec = (raw) => {
-    const [cmd, ...args] = raw.trim().split(/\s+/);
+    const [c, ...a] = raw.trim().split(/\s+/);
     line(`${PS1} ${esc(raw)}`);
-    if (!cmd) return;
-    const out = CMDS[cmd] ? CMDS[cmd](args) : `<span class="warn">zsh: command not found: ${esc(cmd)}</span>  <span class="muted">help 를 쳐 보세요</span>`;
+    if (!c) return;
+    const out = CMDS[c] ? CMDS[c](a) : `<span class="warn">bash: ${esc(c)}: command not found</span>`;
     if (out) line(out);
   };
   const cmd = $('#cmd');
@@ -192,50 +204,48 @@
     else if (e.key === 'ArrowDown') { e.preventDefault(); hAt = Math.min(history.length, hAt + 1); cmd.value = history[hAt] || ''; }
     else if (e.key === 'Tab') {
       e.preventDefault();
-      const parts = cmd.value.split(' '), last = parts.at(-1), pool = parts.length === 1 ? Object.keys(CMDS) : parts[0] === 'open' ? NAMES : parts[0] === 'run' ? Object.keys(RUN) : [];
+      const parts = cmd.value.split(' '), last = parts.at(-1), pool = parts.length === 1 ? Object.keys(CMDS) : parts[0] === 'open' ? IDS : [];
       const hit = pool.filter((x) => x.startsWith(last));
-      if (hit.length === 1) { parts[parts.length - 1] = hit[0]; cmd.value = parts.join(' ') + ' '; }
-      else if (hit.length > 1) line(hit.join('  '), 'muted');
+      if (hit.length === 1) { parts[parts.length - 1] = hit[0]; cmd.value = parts.join(' ') + ' '; } else if (hit.length > 1) line(hit.join('  '), 'muted');
     }
   });
   body.addEventListener('click', () => cmd.focus());
 
-  /* 아래: 달력 + D-day 설정 */
-  const drawMonth = () => {
-    const t = kst(), y = t.getFullYear(), m = t.getMonth(), first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
-    const evs = { [t.getDate()]: D.today.map((e) => e.title), 4: D.tomorrow.map((e) => e.title) };
-    const dd = {}; [main, ...D.dday.list].forEach((d) => { const x = new Date(d.date); if (x.getMonth() === m) dd[x.getDate()] = d.title; });
-    let html = WEEK.map((w) => `<span>${w}</span>`).join('');
-    for (let i = 0; i < first; i++) html += '<div class="is-out"></div>';
-    for (let d = 1; d <= days; d++) {
-      html += `<div class="${d === t.getDate() ? 'is-today' : ''}"><b>${d}</b>${dd[d] ? `<em class="is-dday">${esc(dd[d])}</em>` : ''}${(evs[d] || []).slice(0, 2).map((s) => `<em>${esc(s)}</em>`).join('')}</div>`;
-    }
-    const rest = (7 - ((first + days) % 7)) % 7;
-    for (let i = 0; i < rest; i++) html += '<div class="is-out"></div>';
-    $('#month').innerHTML = html;
-  };
-  const drawDdays = () => {
+  /* 아래: D-day · 알림 · 잔디 · 키워드 */
+  function drawDdays() {
     $('#dday-list').innerHTML = [main, ...D.dday.list].sort((a, b) => a.date.localeCompare(b.date))
       .map((d) => `<li class="${d === main ? 'is-main' : ''}"><b>${ddLabel(daysTo(d.date))}</b><span>${esc(d.title)}${d === main ? ' · 메인' : ''}</span><time>${d.date.slice(5).replace('-', '/')}</time></li>`).join('');
-    drawMonth();
-  };
+  }
   drawDdays();
-
-  /* 잔디 1년 (시안: 고정된 무작위 값) */
+  $('#alert-rows').innerHTML = D.alerts.map((a) => `<li class="${a.warn ? 'is-warn' : ''}"><b>${a.warn ? '!' : '·'}</b><span>${esc(a.text)}</span><time>${a.time}</time></li>`).join('');
+  $('#btn-alerts').onclick = () => $('#alerts-section').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+  $('#kw-term').textContent = D.keyword[0];
+  $('#kw-name').textContent = D.keyword[1];
+  $('#kw-desc').textContent = D.keyword[2];
   let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  $('#grass').innerHTML = Array.from({ length: 53 * 7 }, (_, i) => { const w = i / 7; const v = rnd() * (w > 40 ? 1.3 : 0.7); return `<i class="${v > 0.95 ? 'l3' : v > 0.75 ? 'l2' : v > 0.5 ? 'l1' : ''}"></i>`; }).join('');
+  $('#grass').innerHTML = Array.from({ length: 53 * 7 }, (_, i) => { const v = rnd() * (i / 7 > 40 ? 1.3 : 0.7); return `<i class="${v > 0.95 ? 'l3' : v > 0.75 ? 'l2' : v > 0.5 ? 'l1' : ''}"></i>`; }).join('');
 
-  /* 잠금 화면 */
+  /* 설정: 창 크기 (시안은 화면 폭을 그 크기로 줄여 보여 줌) */
+  $('#btn-settings').onclick = () => { $('#settings').hidden = !$('#settings').hidden; };
+  $('#settings-close').onclick = () => { $('#settings').hidden = true; };
+  $('#win-size').onchange = (e) => {
+    const v = e.target.value;
+    $('.hub').style.maxWidth = v === 'fit' ? '' : `${v.split('x')[0]}px`;
+    drawTimeline();
+  };
+
+  /* 잠금: 뒤 화면은 스크롤 안 됨 */
   const lockEl = $('#lock'), pin = $('#pin');
-  function lock() { back(); lockEl.hidden = false; pin.value = ''; setTimeout(() => pin.focus(), 50); }
-  pin.addEventListener('input', () => { pin.value = pin.value.replace(/\D/g, ''); if (pin.value.length === 6) { lockEl.hidden = true; cmd.focus(); } });
+  function lock() { back(true); $('#settings').hidden = true; scrollTo(0, 0); lockEl.hidden = false; document.body.classList.add('is-locked'); pin.value = ''; setTimeout(() => pin.focus(), 50); }
+  pin.addEventListener('input', () => { pin.value = pin.value.replace(/\D/g, ''); if (pin.value.length === 6) { lockEl.hidden = true; document.body.classList.remove('is-locked'); cmd.focus(); } });
   $('#btn-lock').onclick = lock;
 
-  // 처음 열었을 때 보이는 예시 기록 (달력 그리기가 준비된 뒤에)
-  ['status', 'today', 'dday add 기말고사 2026-12-01'].forEach(exec);
-
+  // 처음 열었을 때 보이는 예시 기록
+  ['status', 'today'].forEach(exec);
   const scene = new URLSearchParams(location.search).get('scene');
   if (scene === 'lock') lock();
   else if (scene === 'summon') summon('kev');
+  else if (scene === 'net') summon('net');
+  else if (scene === 'settings') $('#settings').hidden = false;
   else cmd.focus();
 })();

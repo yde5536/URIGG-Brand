@@ -32,7 +32,15 @@
   <main class="hub">
     <!-- 첫 화면: 왼쪽 오늘 · 가운데 커맨드 센터 · 오른쪽 사이드바(제목 목록) -->
     <section class="deck" aria-label="오늘">
-      <div class="side__head"><p class="side__clock" id="clock">14:32:08</p><p class="side__date" id="date">11월 3일 화요일</p></div>
+      <!-- 위 띠: 시계 | 로고·제목 | 날짜. 아래 세 칸과 같은 칸 나눔 -->
+      <header class="u-tile strip">
+        <p class="side__clock" id="clock">14:32:08</p>
+        <div class="brand">
+          <img class="u-emblem" src="../../logo/emblem-320.webp" alt="URIGG 로고" width="72" height="72">
+          <h1 class="brand__title"><span class="sr-only">URIGG · Security.log HUB</span><span id="title" aria-hidden="true">Security.log HUB</span></h1>
+        </div>
+        <p class="strip__date" id="date">11월 3일 화요일</p>
+      </header>
       <aside class="u-tile side" aria-label="오늘 타임라인">
         <p class="side__dday"><b id="dday-main">D-16</b><span id="dday-name">수능 · 11월 19일</span></p>
         <div class="side__allday" id="allday" aria-label="종일 일정"></div>
@@ -40,10 +48,6 @@
       </aside>
 
       <section class="center" aria-label="커맨드 센터">
-        <header class="brand">
-          <img class="u-emblem" src="../../logo/emblem-320.webp" alt="URIGG 로고" width="72" height="72">
-          <h1 class="brand__title"><span class="sr-only">URIGG · Security.log HUB</span><span id="title" aria-hidden="true">Security.log HUB</span></h1>
-        </header>
         <div class="stage" id="stage">
           <div class="term" id="term">
             <div class="term__bar"><span class="term__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="term__title">urigg@hub: ~</span></div>

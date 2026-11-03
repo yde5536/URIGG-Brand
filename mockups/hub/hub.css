@@ -272,3 +272,13 @@ body.is-locked { overflow: hidden; }
 .grass { align-items: stretch; }
 .grass__grid { width: min(100%, 739px); grid-template-columns: repeat(53, minmax(0, 1fr)); grid-template-rows: repeat(7, auto); grid-auto-columns: unset; gap: 3px; }
 .grass__grid i { aspect-ratio: 1; }
+
+/* v5: 위 줄을 낮은 유리 띠 하나로 (높이 64px). 띠 안은 아래 세 칸과 같은 칸 나눔 */
+:root { --brand-h: 64px; }
+.deck { grid-template-areas: 'strip strip strip' 'side stage dock'; }
+.strip { grid-area: strip; display: grid; grid-template-columns: 260px minmax(0, 1fr) 232px; gap: var(--pad); align-items: center; padding: 0; height: var(--brand-h); }
+.strip .side__clock { padding-left: 20px; font-size: 2.125rem; }
+.strip .brand { grid-area: auto; height: auto; gap: 14px; padding: 0 0 0 8px; }
+.strip .brand .u-emblem { width: 44px; height: 44px; box-shadow: 0 0 36px 4px var(--u-halo); }
+.strip .brand__title { font-size: 2rem; }
+.strip__date { padding-right: 22px; text-align: right; color: var(--u-muted); font-size: var(--u-step-small); }

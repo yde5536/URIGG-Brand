@@ -293,3 +293,6 @@ body.is-locked { overflow: hidden; }
 .strip .brand .u-emblem { width: 56px; height: 56px; }
 .strip .brand__title { font-size: 2.5rem; line-height: 1; }
 .strip__date { font-size: var(--u-step-body); line-height: 1; }
+/* v7: 띠 아래 간격은 원래대로, 대신 세 칸과 화면 바닥 사이를 넓게 (첫 화면의 아래 여백) */
+:root { --strip-gap: 16px; --deck-bottom: 40px; }
+.deck { height: calc(100vh - var(--bar-h) - var(--pad) - var(--deck-bottom)); margin-bottom: calc(var(--deck-bottom) - var(--pad)); }

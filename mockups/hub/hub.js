@@ -26,6 +26,8 @@
     { id: 'ctf', title: 'CTF', status: () => ({ text: `${D.ctf.length}개 · 초보 ${D.ctf.filter((x) => x.beginner).length}` }),
       body: () => `<ul class="rows ctf">${D.ctf.map((x) => `<li><span>${esc(x.t)}${x.beginner ? '<b class="chip">초보</b>' : ''}</span><time>${x.when} · ${x.len}</time></li>`).join('')}</ul>` },
     { id: 'net', title: 'Network', status: () => ({ text: `${okMs.at(-1)} ms` }), body: () => netBig() },
+    { id: 'programs', title: 'Programs', status: () => ({ text: 'v0.1.3' }),
+      body: () => `<div class="prog"><img src="../../logo/emblem-320.webp" alt="" width="56" height="56"><p><b style="font-size:1.375rem">코워크 캘린더</b><span>v0.1.3 · 11-01 · Windows</span></p><a class="u-btn" href="https://github.com/yde5536/URIGG-ClaudeCalender/releases/latest/download/CoworkCalendar-setup.exe">Windows 다운로드</a><span class="prog__desc">대화로 짠 일정을 위젯·아이폰에 띄우는 캘린더</span></div>` },
   ];
 
   /* 시계 · 날짜 · D-day */
@@ -214,6 +216,21 @@
   const IDS = PANELS.map((p) => p.id);
   const CMDS = {
     help: () => [`open <칸>      칸을 가운데로   (${IDS.join(' · ')})`, 'today          오늘 일정', 'dday           D-day 목록   dday add <이름> <YYYY-MM-DD>', 'status · kw · ip · ping · lock · clear', '<span class="muted">명령어는 아직 정하는 중 (시안)</span>'].join('\n'),
+    fetch: () => {
+      const t = kst(), now = `${two(t.getHours())}:${two(t.getMinutes())}`, next = D.today.filter((e) => !e.allDay && e.at > now)[0];
+      let left = '';
+      if (next) { const [h, m] = next.at.split(':').map(Number), d = h * 60 + m - (t.getHours() * 60 + t.getMinutes()); left = d >= 60 ? `${Math.floor(d / 60)}시간 ${d % 60}분 뒤` : `${d}분 뒤`; }
+      const row = (k, v) => `<span class="ff__k">${k}</span><span>${v}</span>`;
+      return `<div class="ff"><img src="../../logo/emblem-320.webp" alt="" width="112" height="112"><div class="ff__info"><p class="ff__title"><b>urigg</b>@<b>hub</b></p><p class="ff__rule"></p>${[
+        row('날짜', `${t.getMonth() + 1}월 ${t.getDate()}일 ${WEEK[t.getDay()]}요일`),
+        row('다음 일정', next ? `<b>${esc(next.title)}</b> · ${next.at} (${left})` : '오늘 남은 일정 없음'),
+        row('D-day', `${mainDd().title} <b>${ddLabel(daysTo(mainDd().date))}</b>`),
+        row('KEV', '<span class="warn">새 항목 2</span> · Ivanti Connect Secure'),
+        row('CTF', `${D.ctf.length}개 예정 · <span class="ok">초보 ${D.ctf.filter((x) => x.beginner).length}</span>`),
+        row('키워드', esc(D.keyword[0])),
+        row('네트워크', `${D.net.ip} · ${okMs.at(-1)} ms`),
+      ].join('')}</div></div>`;
+    },
     status: () => [`오늘 일정 ${D.today.length}개`, '<span class="warn">KEV 새 항목 2</span>  Ivanti Connect Secure', '<span class="ok">초보 CTF</span>  CSCTF 2026 · 11/6 22:00 시작 (D-3)', `${mainDd().title} ${ddLabel(daysTo(mainDd().date))}`].join('\n'),
     today: () => D.today.map((e) => `${e.allDay ? ' 종일' : e.at}  ${esc(e.title)}`).join('\n'),
     dday: (a) => {
@@ -284,11 +301,11 @@
   $('#kw-term').textContent = D.keyword[0];
   $('#kw-name').textContent = D.keyword[1];
   $('#kw-desc').textContent = D.keyword[2];
-  // 잔디: 1년(53주) 중 칸 너비에 들어가는 만큼만 최근 주를 보여 준다 (칸 11px + 틈 3px)
+  // 잔디: 최근 51주 (칸 11px + 틈 3px = 714px)
   let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   const LEVELS = Array.from({ length: 53 * 7 }, (_, i) => { const v = rnd() * (i / 7 > 40 ? 1.3 : 0.7); return v > 0.95 ? 'l3' : v > 0.75 ? 'l2' : v > 0.5 ? 'l1' : ''; });
   const drawGrass = () => {
-    const el = $('#grass'), weeks = Math.max(8, Math.min(53, Math.floor((el.parentElement.clientWidth + 3) / 14)));
+    const el = $('#grass'), weeks = 51;
     el.innerHTML = LEVELS.slice((53 - weeks) * 7).map((c) => `<i class="${c}"></i>`).join('');
   };
   drawGrass(); addEventListener('resize', drawGrass);
@@ -309,7 +326,7 @@
   $('#btn-lock').onclick = lock;
 
   // 처음 열었을 때 보이는 예시 기록
-  ['status', 'today'].forEach(exec);
+  exec('fetch');
   const scene = new URLSearchParams(location.search).get('scene');
   if (scene === 'lock') lock();
   else if (scene === 'summon') summon('kev');

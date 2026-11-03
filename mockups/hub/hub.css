@@ -244,3 +244,27 @@ body.is-locked { overflow: hidden; }
 .grass { flex-direction: column; align-items: flex-start; }
 .grass__grid { max-width: 100%; }
 .prog__dl { min-height: 38px; padding: 0 18px; font-size: var(--u-step-small); }
+
+/* A: 켤 때 터미널의 부팅 요약 (neofetch 모양, 로고는 그림으로) */
+.ff { display: flex; align-items: center; gap: 28px; margin: 10px 0 18px; padding: 18px 0; }
+.ff img { flex: none; width: 112px; height: 112px; border-radius: 50%; box-shadow: 0 0 60px 6px var(--u-halo); }
+.ff__info { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 18px; align-items: baseline; }
+.ff__title { grid-column: 1 / -1; font-size: 1.125rem; }
+.ff__title b { color: var(--hue); }
+.ff__rule { grid-column: 1 / -1; height: 1px; margin: 2px 0 6px; background: rgb(255 255 255 / 0.12); }
+.ff__k { color: var(--hue); }
+.ff b { font-weight: 600; }
+.ff .warn { color: var(--u-accent-text); }
+.ff .ok { color: var(--hue); }
+.prog { gap: 10px 18px; }
+.prog .u-btn { margin-left: 8px; }
+
+/* B: 오로라를 웹보다 밝고 크게. 유리 칸과 사이드바 렌즈가 비칠 빛이 생긴다 */
+.u-aurora span:nth-child(1) { right: -30vmax; top: -40vmax; background: radial-gradient(closest-side, rgb(70 104 182 / 0.62), rgb(58 86 150 / 0.24) 55%, transparent); }
+.u-aurora span:nth-child(2) { left: -34vmax; bottom: -44vmax; background: radial-gradient(closest-side, rgb(44 70 128 / 0.72), rgb(34 52 89 / 0.28) 55%, transparent); }
+.u-aurora span:nth-child(3) { left: 30vw; top: 30vh; width: 80vmax; height: 80vmax; background: radial-gradient(closest-side, rgb(150 44 78 / 0.24), rgb(90 76 160 / 0.12) 55%, transparent); }
+.u-aurora span { animation: hub-drift 60s ease-in-out infinite alternate; }
+.u-aurora span:nth-child(2) { animation-duration: 74s; }
+.u-aurora span:nth-child(3) { animation-duration: 88s; }
+@keyframes hub-drift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-6vw, 4vh, 0) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .u-aurora span { animation: none; } }

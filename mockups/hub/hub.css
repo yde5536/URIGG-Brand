@@ -229,3 +229,14 @@ body.is-locked { overflow: hidden; }
 .dset__list li { grid-template-columns: 4.4em minmax(0, 1fr) auto auto auto; align-items: center; }
 .dday__btn { min-width: 30px; height: 28px; padding: 0 9px; border: 0; border-radius: 8px; background: transparent; color: var(--u-muted); font-size: 0.75rem; cursor: pointer; }
 .dday__btn:hover { background: rgb(255 255 255 / 0.1); color: var(--u-ink); }
+
+/* v4 시작선: 세 칸(왼쪽 D-day·타임라인, 가운데 터미널, 오른쪽 탭 목록)이 같은 선에서 시작하고 같은 선에서 끝난다.
+   위 줄(높이 --brand-h)에는 왼쪽 시계·날짜, 가운데 로고·제목만 칸 없이 놓인다. */
+.deck { grid-template-rows: var(--brand-h) minmax(0, 1fr); grid-template-areas: 'clock brand .' 'side stage dock'; row-gap: var(--pad); }
+.side__head { grid-area: clock; height: auto; justify-content: center; padding: 0 4px; }
+.side { grid-area: side; padding-top: 18px; }
+.side__dday { margin-top: 0; }
+.center { display: contents; }
+.brand { grid-area: brand; }
+.stage { grid-area: stage; }
+.dock { grid-area: dock; padding-top: 14px; }

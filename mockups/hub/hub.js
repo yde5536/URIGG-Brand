@@ -69,7 +69,8 @@
     const y = (min) => nowY + ((min - now) / 60) * PX_H;
     $('#allday').innerHTML = D.today.filter((e) => e.allDay).map((e) => `<span>종일 · ${esc(e.title)}</span>`).join('');
     let html = '';
-    for (const h of [0, 3, 6, 9, 12, 15, 18, 21, 24]) html += `<div class="tl__item is-day" style="top:${y(h * 60)}px"><i></i><time>${two(h % 24)}:00</time><span>${h === 24 ? '내일' : ''}</span></div>`;
+    // 시각 눈금이 '지금' 줄과 30분 안으로 가까우면 겹치므로 그리지 않는다
+    for (const h of [0, 3, 6, 9, 12, 15, 18, 21, 24].filter((hh) => Math.abs(hh * 60 - now) > 30)) html +=`<div class="tl__item is-day" style="top:${y(h * 60)}px"><i></i><time>${two(h % 24)}:00</time><span>${h === 24 ? '내일' : ''}</span></div>`;
     for (const e of D.today.filter((x) => !x.allDay)) {
       const [hh, mm] = e.at.split(':').map(Number), min = hh * 60 + mm;
       html += `<div class="tl__item${min < now ? ' is-past' : ''}" style="top:${y(min)}px"><i></i><time>${e.at}</time><span>${esc(e.title)}</span></div>`;

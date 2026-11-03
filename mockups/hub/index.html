@@ -33,8 +33,7 @@
     <!-- 첫 화면: 왼쪽 오늘 · 가운데 커맨드 센터 · 오른쪽 사이드바(제목 목록) -->
     <section class="deck" aria-label="오늘">
       <aside class="u-tile side" aria-label="오늘 타임라인">
-        <p class="side__clock" id="clock">14:32:08</p>
-        <p class="side__date" id="date">11월 3일 화요일</p>
+        <div class="side__head"><p class="side__clock" id="clock">14:32:08</p><p class="side__date" id="date">11월 3일 화요일</p></div>
         <p class="side__dday"><b id="dday-main">D-16</b><span id="dday-name">수능 · 11월 19일</span></p>
         <div class="side__allday" id="allday" aria-label="종일 일정"></div>
         <div class="tl" id="timeline" aria-label="오늘 일정, 지금 시각은 위에서 3분의 1에 고정"></div>
@@ -69,6 +68,7 @@
       </div>
       <div class="below__dday">
         <h2 class="below__title">D-day</h2>
+        <div class="dday__main" id="dday-big"></div>
         <ul class="dset__list" id="dday-list"></ul>
         <form class="dset__form" onsubmit="return false">
           <input type="text" placeholder="이름 · 캘린더 일정에서 찾아요" aria-label="D-day 이름">

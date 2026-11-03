@@ -23,7 +23,7 @@
       body: () => `<ol class="rows">${D.kev.map((x) => `<li><span>${esc(x.v)}</span><span>${esc(x.c)} · ${esc(x.p)}</span><time>${x.ago}</time></li>`).join('')}</ol>` },
     { id: 'vuln', title: 'Vuln', status: () => ({ text: D.vuln.alias }),
       body: () => `<div><p style="font-size:2.25rem;font-weight:700;letter-spacing:-0.03em">${esc(D.vuln.alias)}</p><p style="color:var(--u-muted);margin-top:4px">${D.vuln.cve} · ${esc(D.vuln.target)} · ${D.vuln.type} · CVSS ${D.vuln.cvss}</p><p style="margin-top:18px;font-size:var(--u-step-lead);line-height:1.6;max-width:60ch">${esc(D.vuln.desc)}</p></div>` },
-    { id: 'ctf', title: 'CTF', status: () => ({ text: 'D-3' }),
+    { id: 'ctf', title: 'CTF', status: () => ({ text: `${D.ctf.length}개 · 초보 ${D.ctf.filter((x) => x.beginner).length}` }),
       body: () => `<ul class="rows ctf">${D.ctf.map((x) => `<li><span>${esc(x.t)}${x.beginner ? '<b class="chip">초보</b>' : ''}</span><time>${x.when} · ${x.len}</time></li>`).join('')}</ul>` },
     { id: 'net', title: 'Network', status: () => ({ text: `${okMs.at(-1)} ms` }), body: () => netBig() },
   ];
@@ -36,9 +36,16 @@
     $('#date').textContent = `${t.getMonth() + 1}월 ${t.getDate()}일 ${WEEK[t.getDay()]}요일`;
   };
   tick(); setInterval(tick, 1000);
-  const main = D.dday.main, md = new Date(main.date);
-  $('#dday-main').textContent = ddLabel(daysTo(main.date));
-  $('#dday-name').textContent = `${main.title} · ${md.getMonth() + 1}월 ${md.getDate()}일`;
+  // D-day: 하나가 메인. 아래 D-day 영역에서 메인 지정·삭제, 터미널에서 추가
+  let dds = [{ ...D.dday.main, main: true }, ...D.dday.list.map((d) => ({ ...d }))];
+  const mainDd = () => dds.find((d) => d.main) || dds[0];
+  const mdLabel = (iso) => { const x = new Date(iso); return `${x.getMonth() + 1}월 ${x.getDate()}일`; };
+  const drawSideDday = () => {
+    const m = mainDd();
+    $('#dday-main').textContent = m ? ddLabel(daysTo(m.date)) : '—';
+    $('#dday-name').textContent = m ? `${m.title} · ${mdLabel(m.date)}` : 'D-day 없음';
+  };
+  drawSideDday();
 
   /* 지지직 제목: URIGG ↔ Security.log HUB, 15초마다 */
   const GLYPHS = '!<>-_\\/[]{}=+*^?#';
@@ -97,6 +104,46 @@
     </div>`;
   }
 
+  /* 사이드바 유리 렌즈 (크롬·엣지): 웹 상단 바와 같은 방식. 가장자리 띠에서 뒤를 안쪽으로 당겨 굴절,
+     빨강·초록·파랑을 조금씩 다르게 당겨 프리즘처럼 갈라지게 한다. 지도는 화면 배율만큼 키워 그린다 */
+  if (window.chrome) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('style', 'position:absolute;width:0;height:0');
+    svg.innerHTML = `<filter id="dock-lens" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feImage result="map" preserveAspectRatio="none"/>${
+      [['r', 1, '1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'], ['g', 0.88, '0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0'], ['b', 0.76, '0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0']]
+        .map(([c, k, m]) => `<feDisplacementMap in="SourceGraphic" in2="map" data-k="${k}" xChannelSelector="R" yChannelSelector="G"/><feColorMatrix type="matrix" values="${m}" result="${c}"/>`).join('')
+    }<feBlend in="r" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="b" mode="screen" result="lens"/><feGaussianBlur in="lens" stdDeviation="1.2"/></filter>`;
+    document.body.append(svg);
+    const f = svg.querySelector('filter'), img = f.querySelector('feImage');
+    const buildLens = () => {
+      const el = $('.dock'), dpr = devicePixelRatio || 1, w = el.offsetWidth, h = el.offsetHeight;
+      if (!w || !h) return;
+      const W = Math.round(w * dpr), H = Math.round(h * dpr), R = 26, BAND = 34;
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      const ctx = cv.getContext('2d'), data = ctx.createImageData(W, H);
+      for (let yy = 0; yy < H; yy++) for (let xx = 0; xx < W; xx++) {
+        // 둥근 사각형의 가장자리까지 거리와 바깥 방향
+        const px = (xx + 0.5) / dpr - w / 2, py = (yy + 0.5) / dpr - h / 2;
+        const qx = Math.abs(px) - (w / 2 - R), qy = Math.abs(py) - (h / 2 - R);
+        let nx, ny, depth;
+        if (qx > 0 && qy > 0) { const l = Math.hypot(qx, qy) || 1; depth = R - l; nx = Math.sign(px) * qx / l; ny = Math.sign(py) * qy / l; }
+        else if (w / 2 - Math.abs(px) < h / 2 - Math.abs(py)) { depth = w / 2 - Math.abs(px); nx = Math.sign(px); ny = 0; }
+        else { depth = h / 2 - Math.abs(py); nx = 0; ny = Math.sign(py); }
+        const t = Math.max(0, 1 - depth / BAND), mag = t * t, i = (yy * W + xx) * 4;
+        data.data[i] = 128 - nx * mag * 127; data.data[i + 1] = 128 - ny * mag * 127; data.data[i + 2] = 128; data.data[i + 3] = 255;
+      }
+      ctx.putImageData(data, 0, 0);
+      for (const n of [f, img]) { n.setAttribute('x', 0); n.setAttribute('y', 0); n.setAttribute('width', W); n.setAttribute('height', H); }
+      img.setAttribute('href', cv.toDataURL());
+      f.querySelectorAll('feDisplacementMap').forEach((d) => d.setAttribute('scale', 70 * dpr * d.dataset.k));
+    };
+    buildLens();
+    addEventListener('resize', buildLens);
+    document.documentElement.classList.add('lens-on');
+  }
+
   /* 사이드바 그리기 */
   const dock = $('#dock');
   dock.innerHTML = PANELS.map((p) => { const s = p.status(); return `<li><button type="button" class="dock__item" data-id="${p.id}"><b>${esc(p.title)}</b><span class="${s.warn ? 'is-warn' : ''}">${esc(s.text)}</span></button></li>`; }).join('');
@@ -137,8 +184,9 @@
     const done = () => { el.remove(); btn.classList.remove('is-away'); $('#cmd')?.focus(); };
     if (reduced || instant) { flying = false; return done(); }
     flying = true;
-    el.querySelector('.big__body').style.opacity = 0;
-    el.animate(flyFrames(btn.getBoundingClientRect(), el.getBoundingClientRect()).reverse(), { duration: FLY - 60, easing: 'cubic-bezier(0.5, 0, 0.75, 0)', fill: 'forwards' }).onfinish = () => { flying = false; done(); };
+    // 돌아갈 때: 들어올 때와 같은 시간, 처음과 끝이 모두 부드러운 곡선 (끝에서 급하게 빨라지지 않게)
+    el.querySelector('.big__body').animate([{ opacity: 1 }, { opacity: 0, offset: 0.35 }, { opacity: 0 }], { duration: FLY + 60, fill: 'forwards' });
+    el.animate(flyFrames(btn.getBoundingClientRect(), el.getBoundingClientRect()).reverse(), { duration: FLY + 60, easing: 'cubic-bezier(0.45, 0, 0.2, 1)', fill: 'forwards' }).onfinish = () => { flying = false; done(); };
   }
 
   /* 단축키 */
@@ -165,16 +213,16 @@
   const IDS = PANELS.map((p) => p.id);
   const CMDS = {
     help: () => [`open <칸>      칸을 가운데로   (${IDS.join(' · ')})`, 'today          오늘 일정', 'dday           D-day 목록   dday add <이름> <YYYY-MM-DD>', 'status · kw · ip · ping · lock · clear', '<span class="muted">명령어는 아직 정하는 중 (시안)</span>'].join('\n'),
-    status: () => [`오늘 일정 ${D.today.length}개`, '<span class="warn">KEV 새 항목 2</span>  Ivanti Connect Secure', '<span class="ok">초보 CTF</span>  CSCTF 2026 · 11/6 22:00 시작 (D-3)', `${main.title} ${ddLabel(daysTo(main.date))}`].join('\n'),
+    status: () => [`오늘 일정 ${D.today.length}개`, '<span class="warn">KEV 새 항목 2</span>  Ivanti Connect Secure', '<span class="ok">초보 CTF</span>  CSCTF 2026 · 11/6 22:00 시작 (D-3)', `${mainDd().title} ${ddLabel(daysTo(mainDd().date))}`].join('\n'),
     today: () => D.today.map((e) => `${e.allDay ? ' 종일' : e.at}  ${esc(e.title)}`).join('\n'),
     dday: (a) => {
       if (a[0] === 'add') {
         const date = a.at(-1), name = a.slice(1, -1).join(' ');
         if (!name || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return '<span class="warn">사용법: dday add 이름 YYYY-MM-DD</span>';
-        D.dday.list.push({ title: name, date }); drawDdays();
+        dds.push({ title: name, date }); drawDdays();
         return `<span class="ok">✓</span> D-day 추가: ${esc(name)} · ${ddLabel(daysTo(date))}  <span class="muted">(아래 D-day에도 들어갔어요)</span>`;
       }
-      return [main, ...D.dday.list].map((d) => `${ddLabel(daysTo(d.date)).padEnd(6)}  ${esc(d.title)}  <span class="muted">${d.date}</span>`).join('\n');
+      return dds.map((d) => `${ddLabel(daysTo(d.date)).padEnd(6)}  ${esc(d.title)}${d.main ? ' · 메인' : ''}  <span class="muted">${d.date}</span>`).join('\n');
     },
     kw: () => `<b>${esc(D.keyword[0])}</b>  <span class="muted">${esc(D.keyword[1])}</span>\n${esc(D.keyword[2])}`,
     ip: () => `${D.net.ip}  <span class="muted">${D.net.isp} · VPN 안 씀 (추정)</span>`,
@@ -212,10 +260,23 @@
   body.addEventListener('click', () => cmd.focus());
 
   /* 아래: D-day · 알림 · 잔디 · 키워드 */
+  // 웹·바탕화면 D-day 칸과 같은 모양: 메인은 크게, 나머지는 목록 (메인 지정 · 삭제)
   function drawDdays() {
-    $('#dday-list').innerHTML = [main, ...D.dday.list].sort((a, b) => a.date.localeCompare(b.date))
-      .map((d) => `<li class="${d === main ? 'is-main' : ''}"><b>${ddLabel(daysTo(d.date))}</b><span>${esc(d.title)}${d === main ? ' · 메인' : ''}</span><time>${d.date.slice(5).replace('-', '/')}</time></li>`).join('');
+    const m = mainDd();
+    $('#dday-big').innerHTML = m
+      ? `<p class="dday__big">${ddLabel(daysTo(m.date))}</p><div><p class="dday__name">${esc(m.title)}</p><p class="dday__date">${mdLabel(m.date)} · 메인</p></div>`
+      : '<p class="dday__date">D-day가 없어요. 아래에서 추가하세요.</p>';
+    $('#dday-list').innerHTML = dds.filter((d) => d !== m).sort((a, b) => a.date.localeCompare(b.date))
+      .map((d) => `<li data-i="${dds.indexOf(d)}"><b>${ddLabel(daysTo(d.date))}</b><span>${esc(d.title)}</span><time>${mdLabel(d.date)}</time><button type="button" class="dday__btn" data-act="main">메인</button><button type="button" class="dday__btn" data-act="del" aria-label="삭제">×</button></li>`).join('');
+    drawSideDday();
   }
+  $('#dday-list').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const i = +b.closest('li').dataset.i;
+    if (b.dataset.act === 'main') dds.forEach((d, k) => { d.main = k === i; });
+    else dds.splice(i, 1);
+    drawDdays();
+  });
   drawDdays();
   $('#alert-rows').innerHTML = D.alerts.map((a) => `<li class="${a.warn ? 'is-warn' : ''}"><b>${a.warn ? '!' : '·'}</b><span>${esc(a.text)}</span><time>${a.time}</time></li>`).join('');
   $('#btn-alerts').onclick = () => $('#alerts-section').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
